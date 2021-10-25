@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+[ -z "${XDG_CACHE_HOME}" ] && {
+  export XDG_CACHE_HOME="${HOME}/.cache"
+}
+
+cache_file="${XDG_CACHE_HOME}/message-of-day"
+script_dir="/etc/message-of-day.d"
+
+[ -f "${HOME}/.hushlogin" ] && {
+  exit 0
+}
+
+[ -f "${cache_file}" ] && {
+  cache_file_date=$(date -r "${cache_file}" +%Y%m%d)
+  today=$(date +%Y%m%d)
+  [ "${cache_file_date}" = "${today}" ] && {
+    exit 0
+  }
+}
+
+touch "${cache_file}"
+
+for script in "${script_dir}"/*; do
+  [ -x "${script}" ] && {
+    "${script}"
+  }
+done
